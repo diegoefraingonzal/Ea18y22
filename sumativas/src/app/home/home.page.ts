@@ -7,6 +7,9 @@ import {
   IonButton,
 
 } from '@ionic/angular/standalone';
+import { Network } from '@capacitor/network';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { PrivacyScreen } from '@capacitor/privacy-screen';
 import { Geolocation } from '@capacitor/geolocation';
 
 @Component({
@@ -33,4 +36,58 @@ export class HomePage {
       console.error('Error obteniendo la ubicación', error);
     }
   };
+  checkNetworkStatus = async () => {
+    try {
+      const status = await Network.getStatus();
+      console.log('Conectado:', status.connected);
+      console.log('Tipo de conexión:', status.connectionType);
+  
+      alert(
+        status.connected
+          ? `Estás conectado por ${status.connectionType}`
+          : 'No tienes conexión a Internet'
+      );
+    } catch (error) {
+      console.error('Error al verificar el estado de red:', error);
+    }
+  };
+  saveFile = async () => {
+    try {
+      await Filesystem.writeFile({
+        path: 'mensaje.txt',
+        data: '¡Hola desde Ionic y Capacitor!',
+        directory: Directory.Documents,
+        encoding: Encoding.UTF8,
+      });
+  
+      alert('Archivo guardado correctamente');
+    } catch (e) {
+      console.error('Error al guardar el archivo', e);
+    }
+  };
+  
+  readFile = async () => {
+    try {
+      const contents = await Filesystem.readFile({
+        path: 'mensaje.txt',
+        directory: Directory.Documents,
+        encoding: Encoding.UTF8,
+      });
+  
+      alert('Contenido del archivo:\n' + contents.data);
+    } catch (e) {
+      console.error('Error al leer el archivo', e);
+      alert('Error al leer el archivo');
+    }
+  };
+  enablePrivacy = async () => {
+    await PrivacyScreen.enable();
+    alert('Protección de pantalla activada');
+  };
+  
+  disablePrivacy = async () => {
+    await PrivacyScreen.disable();
+    alert('Protección de pantalla desactivada');
+  };
+
 }
